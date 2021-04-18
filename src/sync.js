@@ -12,17 +12,17 @@ async function sincronizar() {
     await db.sync({force: true});
 }
 
-/*
+
 async function inserir() {
   let ministro = await Ministro.create({nome: 'Marco Jatobá'});
+  ministro = await Ministro.create({nome:'Monique Amorim'});
+  ministro = await Ministro.create({nome:'Volney'});
+  ministro = await Ministro.create({nome:'Ítalo Maranhão'});
   let categoria = await Categoria.create({nome: 'Fé'});
   let administrador = await Administrador.create({user: 'JM'});
-  PodCast.create({CategoriaId: categoria.id,
-                  AdministradorId: administrador.id,
-                  MinistroId: ministro.id});
 
 
-}*/
+}
 
 // 
 // inserir(a1);
@@ -50,6 +50,6 @@ async function inserir() {
     //console.log((await ministro.getPodCasts()));
 }*/
 
-sincronizar();
-//inserir();
+//sincronizar();
+inserir();
 //consultar();
