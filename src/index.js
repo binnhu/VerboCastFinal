@@ -1,10 +1,6 @@
 require('dotenv').config()
-const Route = require('./routes/RouteGeneric')
-const Service = require('./service/ServiceGeneric')
 
-const express = require("express"); 
-const cors = require('cors');
-
+//Configuração ORM
 const Administrador = require("./model/Administrador");
 const Categoria = require("./model/Categoria");
 const Ministro = require("./model/Ministro");
@@ -12,11 +8,24 @@ const PodCast = require("./model/PodCast");
 const PodCastUsuario = require("./model/PodCastUsuario");
 const Usuario = require("./model/Usuario");
 
+const bcryptjs = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const authorization = require("./authorization");
+
+//Configuração API
+const express = require("express"); 
+
+const cors = require('cors');
+const Route = require('./routes/RouteGeneric')
+const Service = require('./service/ServiceGeneric')
+
+
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 app.get("/", (req, res) => {
     res.json({ message: 'API de PodCasts ativa!!!' })
@@ -81,14 +90,12 @@ app.get("/podcast/:id", async (req, res) => {
 
 
 
-
-
-Route("/usuario",app, new Service(Usuario));
-Route("/categoria",app, new Service(Categoria));
-Route("/ministro",app, new Service(Ministro));
-Route("/podcast",app, new Service(PodCast));
-Route("/podcastUsuario",app, new Service(PodCastUsuario));
-Route("/administrador",app, new Service(Administrador));
+Route("/user", app, new Service(Usuario), authorization);
+Route("/categoria",app, new Service(Categoria), authorization);
+Route("/ministro",app, new Service(Ministro), authorization);
+Route("/podcast",app, new Service(PodCast), authorization);
+Route("/podcastUsuario",app, new Service(PodCastUsuario), authorization);
+Route("/administrador",app, new Service(Administrador), authorization);
 
 /*app.get("/livro/:id/edicao", async (req, res) => {
   const edicoes = await Edicao.findAll({where:{LivroId:req.params.id}});
@@ -109,6 +116,33 @@ app.get("/livro/:id/disciplina", async (req, res) => {
 }) 
 */
 
+async function gerarHash(password){
+  return await bcryptjs.hash(password, 10);
+}
+
+app.post("/cadastrar", async (req, res) => {
+  const {user, email, password} = req.body;
+  const cadastro = await Usuario.create({user, email, password: (await gerarHash(password))});
+  cadastro.password = undefined;
+  res.send(cadastro);
+});
+
+app.post("/autenticar", async (req, res) => {
+  const {email, password} = req.body;
+  const usu = await Usuario.findByPk(email);
+  if(!usu || !password){
+    res.status(400).send("Credenciais Invalidas");
+  } else if(bcryptjs.compareSync(password, usu.password)){
+    const token = jwt.sign(
+      {email},
+      process.env.SECRET,
+      {expiresIn: 3600}
+    );
+    res.send({email, token})
+  }else{
+    res.status(400).send("Credenciais Invalidas")
+  }
+})
 
 app.listen(process.env.PORT, () => {
   console.log(`Servidor escutando na porta ${process.env.PORT}`);

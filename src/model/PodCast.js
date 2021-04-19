@@ -8,7 +8,6 @@ const PodCast = db.define("PodCast", {
   id: {    
     type: DataTypes.INTEGER,
     autoIncrement: true,
-    allowNull: false,
     primaryKey: true
   },
   capa: DataTypes.STRING,
@@ -30,7 +29,7 @@ const PodCast = db.define("PodCast", {
     type: DataTypes.INTEGER,
     references:{
       model: Administrador,
-      key: 'id'
+      key: 'email'
     }
   },
 

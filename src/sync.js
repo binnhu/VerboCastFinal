@@ -14,12 +14,12 @@ async function sincronizar() {
 
 
 async function inserir() {
-  let ministro = await Ministro.create({nome: 'Marco Jatobá'});
-  ministro = await Ministro.create({nome:'Monique Amorim'});
-  ministro = await Ministro.create({nome:'Volney'});
-  ministro = await Ministro.create({nome:'Ítalo Maranhão'});
-  let categoria = await Categoria.create({nome: 'Fé'});
-  let administrador = await Administrador.create({user: 'JM'});
+  let ministro = await Ministro.create({nome: 'Monique Amorim'});
+  let categoria = await Categoria.create({nome: 'Família'});
+  let administrador = await Administrador.create({email: 'admin@mail.com'});
+  PodCast.create({CategoriaId: categoria.id,
+                  AdministradorId: administrador.id,
+                  MinistroId: ministro.id});
 
 
 }
